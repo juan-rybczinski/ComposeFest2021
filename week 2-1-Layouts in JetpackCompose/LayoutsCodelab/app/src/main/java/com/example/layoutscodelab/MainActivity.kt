@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.*
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -358,8 +359,43 @@ fun DecoupledConstraintLayout() {
             Button(onClick = { /*TODO*/ }, modifier = Modifier.layoutId("button")) {
                 Text("Button")
             }
-            
+
             Text(text = "Text", Modifier.layoutId("text"))
+        }
+    }
+}
+
+@Composable
+fun TwoTexts(modifier: Modifier = Modifier, text1: String, text2: String) {
+    Row(modifier = modifier.height(IntrinsicSize.Min)) {
+        Text(
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 4.dp)
+                .wrapContentWidth(Alignment.Start),
+            textAlign = TextAlign.Center,
+            text = text1
+        )
+        Divider(color = Color.Black, modifier = Modifier
+            .fillMaxHeight()
+            .width(1.dp))
+        Text(
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 4.dp)
+                .wrapContentWidth(Alignment.End),
+            textAlign = TextAlign.Center,
+            text = text2
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TwoTextsPreview() {
+    LayoutsCodelabTheme {
+        Surface {
+            TwoTexts(text1 = "Hi", text2 = "there")
         }
     }
 }

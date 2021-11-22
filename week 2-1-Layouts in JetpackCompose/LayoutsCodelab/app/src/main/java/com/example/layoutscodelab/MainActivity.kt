@@ -18,8 +18,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.layout.FirstBaseline
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.example.layoutscodelab.ui.theme.LayoutsCodelabTheme
@@ -92,11 +97,18 @@ fun LayoutsCodelab() {
 
 @Composable
 private fun BodyContent(modifier: Modifier) {
-    Column(modifier = modifier) {
+    MyOwnColumn(modifier.padding(8.dp)) {
+        Text(text = "MyOwnColumn")
+        Text(text = "places items")
+        Text(text = "vertically.")
+        Text(text = "We've done it by hand!")
+    }
+
+//    Column(modifier = modifier) {
 //        Text(text = "Hi there!")
 //        Text(text = "Thanks for going through the Layouts codelab")
-        ScrollingList()
-    }
+//        ScrollingList()
+//    }
 }
 
 @Composable
@@ -156,6 +168,43 @@ fun ImageListItem(index: Int) {
     }
 }
 
+fun Modifier.firstBaselineToTop(
+    firstBaselineToTop: Dp
+) = this.then(
+    layout { measurable, constraints ->
+        val placeable = measurable.measure(constraints)
+
+        check(placeable[FirstBaseline] != AlignmentLine.Unspecified)
+        val firstBaseline = placeable[FirstBaseline]
+
+        val placeableY = firstBaselineToTop.roundToPx() - firstBaseline
+        val height = placeable.height + placeableY
+        layout(placeable.width, height) {
+            placeable.placeRelative(0, placeableY)
+        }
+    }
+)
+
+@Composable
+fun MyOwnColumn(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Layout(modifier = modifier, content = content) { measurables, constraints ->
+        val placeables = measurables.map { measurable ->
+            measurable.measure(constraints = constraints)
+        }
+
+        var yPosition = 0
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            placeables.forEach { placeable ->
+                placeable.placeRelative(0, yPosition)
+                yPosition += placeable.height
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
@@ -169,5 +218,21 @@ fun DefaultPreview() {
 fun PhotographerCardPreview() {
     LayoutsCodelabTheme {
         PhotographerCard()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TextWithPaddingToBaselinePreview() {
+    LayoutsCodelabTheme {
+        Text("Hi there!", Modifier.firstBaselineToTop(32.dp))
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TextWithNormalPaddingPreview() {
+    LayoutsCodelabTheme {
+        Text("Hi there!", Modifier.padding(top = 32.dp))
     }
 }
